@@ -1,26 +1,65 @@
-# Conceptual ERD: AI-powered Viva Exam System
+@startuml
+skinparam BoxPadding 10
+skinparam ParticipantPadding 10
+skinparam NoteBackgroundColor #FEFECE
+skinparam NoteBorderColor #B2B2B2
 
-```mermaid
-erDiagram
-    USERS ||--o{ EXAM_SESSION : conducts
-    USERS ||--o{ STUDENT_EXAM : attends
-    COURSE ||--o{ QUESTION : contains
-    QUESTION ||--o{ RUBRIC : defines
-    QUESTION ||--o{ EXAM_TURN : instantiated_in
-    EXAM_SESSION ||--o{ STUDENT_EXAM : includes
-    STUDENT_EXAM ||--o{ EXAM_TURN : records_dialogue
-    STUDENT_EXAM ||--o| AUDIT_EVIDENCE : generates
+|Sinh viên|
+start
+:Nhấn "Vào phòng thi";
 
-    USERS {
-        uuid id PK
-        string full_name
-        string role "Admin | Lecturer | Student"
-    }
-    STUDENT_EXAM {
-        uuid id PK
-        uuid session_id FK
-        uuid student_id FK
-        float ai_suggested_score
-        float lecturer_final_score
-        string status 
-    }
+|Web Client|
+:Kiểm tra thiết bị (Micro, Cam);
+:Mở WebSocket/WebRTC kết nối phiên;
+
+|Backend API|
+:Xác thực sinh viên & Khởi tạo Session;
+:Lấy danh sách câu hỏi đã được bốc ngẫu nhiên;
+:Gửi nội dung câu hỏi đầu tiên;
+
+|AI Viva Engine|
+:Text-To-Speech (TTS): Tổng hợp giọng nói;
+
+|Web Client|
+:Phát audio câu hỏi qua loa;
+
+|Sinh viên|
+:Nghe câu hỏi;
+:Nói câu trả lời qua Micro;
+
+|Web Client|
+:Thu âm & Stream từng gói Audio;
+
+|AI Viva Engine|
+:Speech-To-Text (STT): Nhận diện giọng nói;
+:LLM: Phân tích câu trả lời đối chiếu Rubric;
+
+|Backend API|
+:Lưu Transcript và âm thanh của Lượt (Turn);
+
+if (Ý chưa rõ VÀ Lượt xoáy < Giới hạn?) then (Có - Cần hỏi xoáy)
+  |AI Viva Engine|
+  :LLM: Sinh câu hỏi phụ đào sâu (Follow-up);
+  :TTS: Tổng hợp audio câu hỏi phụ;
+  |Web Client|
+  :Phát câu hỏi phụ cho SV;
+  |Sinh viên|
+  :Trả lời bổ sung ý;
+  |Web Client|
+  -> Gửi tiếp luồng âm thanh;
+else (Không - Đủ ý hoặc Hết lượt xoáy)
+  |Backend API|
+  if (Còn câu hỏi chính tiếp theo?) then (Còn)
+    :Lấy câu hỏi tiếp theo;
+    |AI Viva Engine|
+    -> Gửi câu hỏi mới sang TTS;
+  else (Đã hết đề)
+    |Backend API|
+    :Đóng ca thi & Đánh dấu COMPLETED;
+    :Gửi dữ liệu qua hàng đợi cho AI chấm nháp;
+    |Sinh viên|
+    :Nhận thông báo "Hoàn thành bài thi vấn đáp";
+    stop
+  endif
+endif
+@enduml
