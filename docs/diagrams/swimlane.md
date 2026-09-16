@@ -1,38 +1,55 @@
-# Swimlane Diagram: Phiên thi vấn đáp AI thích ứng
+# Swimlane Diagram: Real-Time Adaptive Viva Examination
 
 ```mermaid
 flowchart TD
-    subgraph Lane_Student["Làn 1: Sinh viên (Examinee)"]
-        S1([Bắt đầu phòng thi])
-        S2[Lắng nghe AI đọc câu hỏi]
-        S3[Trả lời câu hỏi qua Micro]
-        S4([Kết thúc bài thi])
+    subgraph Lane_Student["Student (Examinee)"]
+        S1([Join Exam Session])
+        S2[Listen to AI Question]
+        S3[Provide Verbal Answer via Mic]
+        S4([Exam Completed])
     end
 
-    subgraph Lane_Client["Làn 2: Web Client (Frontend / WebRTC)"]
-        C1[Kích hoạt Micro / Camera]
-        C2[Phát âm thanh câu hỏi ra loa]
-        C3[Stream Audio Chunk thời gian thực]
+    subgraph Lane_Client["Web Client (Frontend / WebRTC)"]
+        C1[Initialize Media Devices]
+        C2[Playback Question Audio]
+        C3[Stream Real-time Audio Chunks]
     end
 
-    subgraph Lane_Backend["Làn 3: Core Backend"]
-        B1[Xác thực & Tạo Session ID]
-        B2[Truy xuất câu hỏi chính từ DB]
-        B3[Ghi nhận Transcript & Audit Log]
-        B4{Cần hỏi xoáy VÀ\nLượt xoáy < Max?}
-        B5{Còn câu hỏi\ntrong ca thi?}
-        B6[Đóng phiên & Lưu bản ghi âm toàn bài]
+    subgraph Lane_Backend["Core Backend (API Gateway & Session Service)"]
+        B1[Authenticate & Initialize Session]
+        B2[Fetch Main Question from DB]
+        B3[Log Dialogue Transcript & Turn Events]
+        B4{Probing Required AND\nTurn Count < Max Limit?}
+        B5{Remaining Questions\nin Exam Session?}
+        B6[Close Session & Archive Full Audio/Video]
     end
 
-    subgraph Lane_AI["Làn 4: AI Viva Engine (STT / LLM / TTS)"]
-        A1[TTS: Chuyển văn bản thành giọng nói]
-        A2[STT: Chuyển giọng nói sang Text]
-        A3[LLM: Đánh giá ý & So khớp Rubric]
-        A4[LLM: Sinh câu hỏi xoáy đào sâu]
+    subgraph Lane_AI["AI Viva Engine (STT / LLM / TTS)"]
+        A1[TTS: Synthesize Speech from Text]
+        A2[STT: Convert Audio Stream to Text]
+        A3[LLM: Analyze Content against Rubric]
+        A4[LLM: Generate Adaptive Probing Question]
     end
 
-    S1 --> C1 --> B1 --> B2 --> A1 --> C2 --> S2 --> S3 --> C3 --> A2 --> A3 --> B3 --> B4
-    B4 -- Đúng: Cần làm rõ --> A4 --> A1
-    B4 -- Sai: Đủ ý hoặc hết lượt --> B5
-    B5 -- Còn câu tiếp theo --> B2
-    B5 -- Hết câu hỏi --> B6 --> S4
+    S1 --> C1
+    C1 --> B1
+    B1 --> B2
+    B2 --> A1
+    A1 --> C2
+    C2 --> S2
+    S2 --> S3
+    S3 --> C3
+    C3 --> A2
+    A2 --> A3
+    A3 --> B3
+    B3 --> B4
+
+    %% Probing condition
+    B4 -- Yes: Clarification Needed --> A4
+    A4 --> A1
+
+    %% Next Question or Finish
+    B4 -- No: Satisfied / Limit Reached --> B5
+    B5 -- Next Question Exists --> B2
+    B5 -- All Questions Answered --> B6
+    B6 --> S4
