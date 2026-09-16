@@ -1,47 +1,50 @@
+---
+
+### 2. File `docs/diagrams/use-case.md` (Use Case Diagram)
+
+
+
+```markdown
 # Use Case Diagram: AI-powered Viva Exam System (AIVES)
-
-![AIVES Use Case Diagram](https://www.plantuml.com/plantuml/svg/bLJDRnin4BtxLt3g3dYm3h58H45wL24-G7e6lD0G7o2L2A6eOca0k8Z9ZqK_p_pxzWfU4uS5a54b32JmXW_6U2YV7kI2aH6V3y7p1k2L4eP8U8K1g8I3w4f2o8M2aX8V3wK1g8P5aH6V3y7p1k2L4eP8U8K1g8I3w4f2o8M2aX8V3wK1g8P5)
-
-### PlantUML Source Code
 
 ```plantuml
 @startuml
 left to right direction
 skinparam packageStyle rectangle
 
-actor "Sinh viên" as Student
-actor "Giảng viên" as Lecturer
-actor "Quản trị viên" as Admin
-actor "AI Engine" as AIService <<System>>
+actor "Student" as Student
+actor "Lecturer" as Lecturer
+actor "Administrator" as Admin
+actor "AI Service Engine" as AIService <<System>>
 
-rectangle "AIVES - AI Viva Exam System" {
-  package "Quản lý Đề & Rubric" {
-    usecase "Tải tài liệu & Sinh câu hỏi tự động" as UC_GenQuestions
-    usecase "Duyệt / Tinh chỉnh ngân hàng câu hỏi" as UC_ManageQuestions
-    usecase "Thiết lập Rubric & Thang Bloom" as UC_SetRubric
+rectangle "AIVES - AI-powered Viva Exam System" {
+  package "Question & Rubric Management" {
+    usecase "Ingest Documents & Auto-generate Questions (RAG)" as UC_GenQuestions
+    usecase "Review & Refine Question Bank" as UC_ManageQuestions
+    usecase "Configure Bloom Taxonomy & Rubric Criteria" as UC_SetRubric
   }
 
-  package "Quản lý Kỳ thi" {
-    usecase "Thiết lập ca thi & Bộ câu hỏi" as UC_CreateExam
-    usecase "Giám sát phiên thi trực tiếp" as UC_MonitorExam
+  package "Exam Session Administration" {
+    usecase "Schedule Exam Session & Configure Question Sets" as UC_CreateExam
+    usecase "Monitor Live Exam Sessions" as UC_MonitorExam
   }
 
-  package "Chấm thi & Đánh giá" {
-    usecase "Xem Transcript & Nghe lại ghi âm" as UC_ReviewExam
-    usecase "Phê duyệt & Chốt điểm cuối (Human-in-the-loop)" as UC_FinalizeGrade
-    usecase "Xem thống kê & Xuất bảng điểm" as UC_ExportReport
+  package "Assessment & Human-in-the-Loop Grading" {
+    usecase "Review Transcript & Audio Playback" as UC_ReviewExam
+    usecase "Adjust & Finalize Grade (Human-in-the-loop)" as UC_FinalizeGrade
+    usecase "Export Performance Analytics & Reports" as UC_ExportReport
   }
 
-  package "Tham gia Thi" {
-    usecase "Tham gia phòng vấn đáp ảo" as UC_TakeViva
-    usecase "Tương tác thoại với AI Examiner" as UC_VoiceInteraction
-    usecase "Xem báo cáo kết quả & Nhận xét" as UC_ViewResult
+  package "Examinee Portal" {
+    usecase "Join Virtual Viva Room" as UC_TakeViva
+    usecase "Conduct Real-time Voice Interaction" as UC_VoiceInteraction
+    usecase "View Evaluation Report & Feedback" as UC_ViewResult
   }
 
-  package "Hệ thống" {
-    usecase "Quản lý tài khoản & Phân quyền" as UC_ManageUsers
-    usecase "Cấu hình mô hình STT/TTS/LLM" as UC_ConfigSystem
-    usecase "Truy vết nhật ký kiểm toán (Audit Logs)" as UC_AuditLog
+  package "System & Infrastructure Administration" {
+    usecase "Manage User Accounts & RBAC" as UC_ManageUsers
+    usecase "Configure STT / TTS / LLM Model Endpoints" as UC_ConfigSystem
+    usecase "Inspect Audit Trails & Session Logs" as UC_AuditLog
   }
 }
 
