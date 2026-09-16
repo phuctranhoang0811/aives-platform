@@ -1,3 +1,9 @@
+---
+
+### 4. File mới: `docs/diagrams/architecture.md` (Software Architecture Design)
+
+
+
 ```markdown
 # Software Architecture Design: AIVES Platform
 
